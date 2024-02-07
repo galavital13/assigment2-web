@@ -1,0 +1,44 @@
+{
+  "items": [
+    {
+      "item_name": "Bottled Water",
+      "unit_price": 1.5,
+      "quantity": 100
+    },
+    {
+      "item_name": "Canned Food",
+      "unit_price": 2.99,
+      "quantity": 50
+    },
+    {
+      "item_name": "First Aid Kit",
+      "unit_price": 15.75,
+      "quantity": 20
+    },
+    {
+      "item_name": "Blankets",
+      "unit_price": 8.99,
+      "quantity": 30
+    },
+    {
+      "item_name": "Flashlights",
+      "unit_price": 5.49,
+      "quantity": 40
+    },
+    {
+      "item_name": "Battery Packs",
+      "unit_price": 12.99,
+      "quantity": 25
+    },
+    {
+      "item_name": "Portable Stoves",
+      "unit_price": 19.99,
+      "quantity": 15
+    },
+    {
+      "item_name": "Tents",
+      "unit_price": 29.99,
+      "quantity": 10
+    }
+  ]
+}
