@@ -1,5 +1,5 @@
 const authMiddleware = (req, res, next) => {
-  console.log('Authentication middleware');
+  console.log("Authentication middleware");
   next();
 };
 

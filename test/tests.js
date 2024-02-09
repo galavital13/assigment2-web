@@ -1,77 +1,94 @@
-const request = require('supertest');
-const app = require('../controllers/index');
+const request = require("supertest");
+const app = require("../index");
 
-describe('GET /items', () => {
-  it('should return all items', async () => {
-    const response = await request(app).get('/items');
-    expect(response.status).toBe(200);
-    expect(response.body).toHaveProperty('items');
-    expect(Array.isArray(response.body.items)).toBeTruthy();
+describe("GET /items", () => {
+  it("should respond with JSON containing a list of all items", async () => {
+    const response = await request(app).get("/items");
+    expect(response.statusCode).toBe(200);
+    expect(response.body).toEqual(expect.any(Array));
   });
 });
 
-describe('POST /items', () => {
-  it('should add a new item', async () => {
-    const newItem = { item_name: 'New Item', unit_price: 10, quantity: 50 };
-    const response = await request(app).post('/items').send(newItem);
-    expect(response.status).toBe(200);
-    expect(response.body).toHaveProperty('message', 'Item has been added!');
+describe("GET /items/:item_name", () => {
+  it("should respond with JSON containing the item with the specified name", async () => {
+    const response = await request(app).get("/items/example_item");
+    expect(response.statusCode).toBe(200);
+    expect(response.body).toEqual(expect.any(Object));
+  });
+
+  it("should respond with a 404 Not Found status code for non-existing items", async () => {
+    const response = await request(app).get("/items/non_existing_item");
+    expect(response.statusCode).toBe(404);
+  });
+
+  it("should respond with a 400 Bad Request status code for invalid item names", async () => {
+    const response = await request(app).get("/items/!@#$%^");
+    expect(response.statusCode).toBe(400);
   });
 });
 
-describe('PUT /items/:item_id', () => {
-  it('should update an existing item', async () => {
-    const itemToUpdate = { item_name: 'Bottled Water', unit_price: 2, quantity: 200 };
-    const response = await request(app).put('/items/Bottled Water').send(itemToUpdate);
-    expect(response.status).toBe(200);
-    expect(response.body).toHaveProperty('message', 'Item has been updated!');
+describe("POST /items", () => {
+  it("should add a new item and respond with JSON containing the added item", async () => {
+    const newItem = { item_name: "new_item", unit_price: 10, quantity: 20 };
+    const response = await request(app).post("/items").send(newItem);
+    expect(response.statusCode).toBe(201);
+    expect(response.body).toEqual(expect.objectContaining(newItem));
+  });
+
+  it("should respond with a 400 Bad Request status code if item data is incomplete", async () => {
+    const response = await request(app)
+      .post("/items")
+      .send({ item_name: "incomplete_item" });
+    expect(response.statusCode).toBe(400);
+  });
+
+  it("should respond with a 400 Bad Request status code if item data is invalid", async () => {
+    const response = await request(app)
+      .post("/items")
+      .send({ item_name: "!@#$%^", unit_price: "invalid", quantity: -10 });
+    expect(response.statusCode).toBe(400);
   });
 });
 
-describe('DELETE /items/:item_id', () => {
-  it('should delete an existing item', async () => {
-    const response = await request(app).delete('/items/Flashlights');
-    expect(response.status).toBe(200);
-    expect(response.body).toHaveProperty('message', 'Item has been deleted!');
+describe("PUT /items/:item_name", () => {
+  it("should update an existing item and respond with JSON containing the updated item", async () => {
+    const updatedItemData = { unit_price: 15 };
+    const response = await request(app)
+      .put("/items/example_item")
+      .send(updatedItemData);
+    expect(response.statusCode).toBe(200);
+    expect(response.body).toEqual(expect.objectContaining(updatedItemData));
+  });
+
+  it("should respond with a 400 Bad Request status code if item data is invalid", async () => {
+    const response = await request(app)
+      .put("/items/example_item")
+      .send({ unit_price: "invalid" });
+    expect(response.statusCode).toBe(400);
+  });
+
+  it("should respond with a 404 Not Found status code for non-existing items", async () => {
+    const response = await request(app)
+      .put("/items/non_existing_item")
+      .send({ unit_price: 15 });
+    expect(response.statusCode).toBe(404);
   });
 });
 
-describe('GET /items/:item_id', () => {
-  it('should return a specific item', async () => {
-    const response = await request(app).get('/items/First Aid Kit');
-    expect(response.status).toBe(200);
-    expect(response.body).toHaveProperty('item_name', 'First Aid Kit');
-  });
-});
-
-describe('Invalid Data Handling', () => {
-  it('should handle missing data on POST /items', async () => {
-    const response = await request(app).post('/items').send({});
-    expect(response.status).toBe(400);
-    expect(response.body).toHaveProperty('message', 'Invalid item');
+describe("DELETE /items/:item_name", () => {
+  it("should delete an existing item and respond with a success message", async () => {
+    const response = await request(app).delete("/items/example_item");
+    expect(response.statusCode).toBe(200);
+    expect(response.body.message).toBe("Item has been deleted!");
   });
 
-  it('should handle invalid JSON format on POST /items', async () => {
-    const response = await request(app).post('/items').send('invalid_json');
-    expect(response.status).toBe(400);
-    expect(response.body).toHaveProperty('message', 'Invalid JSON format in the request body');
+  it("should respond with a 404 Not Found status code for non-existing items", async () => {
+    const response = await request(app).delete("/items/non_existing_item");
+    expect(response.statusCode).toBe(404);
   });
 
-  it('should handle updating a non-existing item on PUT /items/:item_id', async () => {
-    const response = await request(app).put('/items/Non Existing Item').send({ unit_price: 5 });
-    expect(response.status).toBe(400);
-    expect(response.body).toHaveProperty('message', 'Item not found');
-  });
-
-  it('should handle deleting a non-existing item on DELETE /items/:item_id', async () => {
-    const response = await request(app).delete('/items/Non Existing Item');
-    expect(response.status).toBe(400);
-    expect(response.body).toHaveProperty('message', 'Item not found');
-  });
-
-  it('should handle reading a non-existing item on GET /items/:item_id', async () => {
-    const response = await request(app).get('/items/Non Existing Item');
-    expect(response.status).toBe(404);
-    expect(response.body).toHaveProperty('message', 'Item not found');
+  it("should respond with a 400 Bad Request status code for invalid item names", async () => {
+    const response = await request(app).delete("/items/!@#$%^");
+    expect(response.statusCode).toBe(400);
   });
 });
