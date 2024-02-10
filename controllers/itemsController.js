@@ -1,14 +1,22 @@
 const itemRepository = require("../repository/itemRepository");
-const { NotFoundError, ServerError } = require("../errors/errorHandler");
+const { NotFoundError, ServerError } = require("../errors/error");
 
 const getItems = async (req, res) => {
   try {
     const items = await itemRepository.getItems();
+    if (items.length===0) {
+      throw new NotFoundError()
+    }
     res.status(200).json(items);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    if (error instanceof NotFoundError) {
+      return res.status(404).json(error.message);
+    }
+    else if (error instanceof ServerError) {
+    res.status(500).json({ message: error.message });
   }
-};
+  };
+}
 
 const getItemByItemName = async (req, res) => {
   try {

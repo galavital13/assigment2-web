@@ -3,6 +3,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const authMiddleware = require("./middleware/authMiddleware");
 const errorHandler = require("./errors/errorHandler");
+const error = require("./errors/error");
 const connectDB = require("./db/db");
 const itemsRouter = require("./router/itemsRouter");
 const logger = require("./logger");
