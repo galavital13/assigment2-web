@@ -7,8 +7,10 @@ const error = require("./errors/error");
 const connectDB = require("./db/db");
 const itemsRouter = require("./router/itemsRouter");
 const logger = require("./logger");
+const cors = require('cors');
 
 const app = express();
+app.use(cors());
 const PORT = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
@@ -19,7 +21,7 @@ app.use(errorHandler);
 connectDB();
 
 app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+  console.log(`Server is running on http://localhost:${PORT}/items`);
 });
 
 module.exports = app;
